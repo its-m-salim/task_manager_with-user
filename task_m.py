@@ -214,7 +214,7 @@ while True:
                                         else:
                                             print("Incorrect password!!")
                                     case 2:
-                                        
+                                        pass
                                     case 0:
                                         print("=== EXIT! ===")
                                         break

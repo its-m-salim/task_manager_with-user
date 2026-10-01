@@ -23,15 +23,16 @@ def create_task(title, description, dueration, user_id):
     task_db.append(task)
 
 
-def read_task(task_id, user_id):
+def read_task(task_id, user):
     for i in task_db:
-        if i["task_id"] == task_id and i["user_id"] == user_id:
+        if i["task_id"] == task_id and i["user_id"] == user["user_id"]:
             return f"""
 Your task {i["task_id"]}:
 Title:{i["title"]}
 Description:{i["description"]}
 Dueration :{i["dueration"]}
 Status:{i["status"]}
+Owner: {user["username"]}
 """
     else:
         return False
@@ -116,6 +117,15 @@ def change_p(password, user):
     else:
         return False
 
+def clear_data(user):
+    for task in task_db[:]:
+        if task["user_id"] == user["user_id"]:
+            task_db.remove(task)
+
+def del_user(password, user):
+    pass
+    
+
 
 while True:
     if is_login == None:
@@ -152,6 +162,7 @@ while True:
         while True:
             print(f"\n====== Login as '{is_login["username"]}' ======")
             print(user_db)
+            print(task_db)
 
             try:
                 n = int(input("1)Create Task\n2)Read task\n3)Update Task\n4)Delete\n5)Show Profile\n0)Logout\nChouse one: "))
@@ -160,7 +171,7 @@ while True:
                 continue
             match n:
                 case 1:
-                    print("Start create task")
+                    print("\n==== CREATING NEW TASK ====")
                     title = input("Title: ")
                     descp = input("Description: ")
                     durat = input("Duration: ")
@@ -169,13 +180,14 @@ while True:
                     last_edit = datetime.now().strftime("%H:%M:%S")
 
                 case 2:
+                    print("\n==== READING TASK ====")
                     k = int(input("Enter id task: "))
-                    print(read_task(k, is_login["user_id"]))
+                    print(read_task(k, is_login))
 
                 case 3:
-                    print("Start update task")
+                    print("\n==== UPDATING TASK ====")
                     k = int(input("Enter id task: "))
-                    if read_task(k, is_login["user_id"]):
+                    if read_task(k, is_login):
                         title = input("Title or put enter for continue: ")
                         descp = input("Description or put enter for continue: ")
                         durat = input("Duration or put enter for continue: ")
@@ -187,6 +199,7 @@ while True:
                         print("This task dinaded")
 
                 case 4:
+                    print("\n==== DELETING TASK ====")
                     k = int(input("Enter id task: "))
                     if delete_task(k, is_login["user_id"]):
                         print("Your task deleted!")
@@ -195,12 +208,12 @@ while True:
                         print("This task dinaded")
                 case 5:
                     while True:
+                        print("\n==== USER PROFILE ====")
                         show_profile(is_login)
                         print("Enter 1 for settings or whatever  for exit")
                         try:
-                            sett = int(input("Your choice: "))
                             while True:
-                                print("\n1)Change the Password\n2)Delete user\n0)Back")
+                                print("\n1)Change the Password\n2)Delete user\n3)Clear user database\n0)Back")
                                 choice = int(input("Your choice: "))
                                 match choice:
                                     case 1:
@@ -213,31 +226,44 @@ while True:
                                                 print("Password can't be empty!")
                                         else:
                                             print("Incorrect password!!")
+
                                     case 2:
                                         pass
+                                        # delet = input("Enter your password: ")
+                                        # if delet == is_login["password"]:
+                                        #     clear_data(is_login)
+
+                                        # else:
+                                        #     print("Wrong password")
+                                    case 3:
+                                        clear = input("Enter your password: ")
+                                        if clear == is_login["password"]:
+                                            cnt =0
+                                            for task in task_db:
+                                                if task["user_id"] == is_login["user_id"]:
+                                                    cnt += 1
+                                            if cnt>0:
+                                                print(f"Tasks will be deleted: {cnt}")
+                                            else:
+                                                print("You have Nothing to clear!")
+                                                continue
+                                            try:
+                                                sure = int(input("Are you sure to delete?\nEnter 1 to for YES , else to cancel: "))
+                                                match sure:
+                                                    case 1:
+                                                        clear_data(is_login)
+                                                        print("Your database is empty!")
+                                            except ValueError:
+                                                print("Cancel!")
+                                        else:
+                                            print("Wrong password! ")
+                                        
                                     case 0:
                                         print("=== EXIT! ===")
                                         break
                         except ValueError:
                             print("=== EXIT! ===")
                             break
-                    # while True:
-                    #     print("\n1)Change the Password\n2)Delete user\n0)Back")
-                    #     choice = int(input("Your choice: "))
-                    #     match choice:
-                    #         case 1:
-                    #             chp = input("Enter current password: ")
-                    #             if login(is_login["username"], chp):
-                    #                 np = input("Enter a new password: ")
-                    #                 if change_p(np, is_login):
-                    #                     print("Password has been changed!")
-                    #                 else:
-                    #                     print("Password can't be empty!")
-                    #             else:
-                    #                 print("Incorrect password!!")
-                    #         case 0:
-                    #             print("=== EXIT! ===")
-                    #             break
                 case 0:
                     print("=== Logout! ===")
                     is_login = None
